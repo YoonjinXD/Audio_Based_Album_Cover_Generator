@@ -45,12 +45,23 @@ sample_dir = os.path.join('./results/sample_images', 'debug')
 if not os.path.exists(sample_dir):
     os.makedirs(sample_dir)
 
-# Set Params
+# Set Params TODO: 파라미터 지저분한 거 config로 빼기
 num_training_updates = 10000
-learning_rate = 2e-4
+
+num_hiddens = 256
+num_residual_hiddens = 256
+num_residual_layers = 2
+
+embedding_dim = 32*32*1
+num_embeddings = 512
+
+commitment_cost = 0.25
+decay = 0.99
+learning_rate = 1e-4
 
 # Set Models
-vq_vae = torch.load('results/model/all_256.pt').to(device)
+vq_vae = VQ_VAE(num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, decay).to(device)
+vq_vae.load_state_dict(torch.load('results/model/all_256_state_dict.pt')).to(device)
 audio_encoder = AudioEncoder().to(device)
 
 vq_vae.eval()
