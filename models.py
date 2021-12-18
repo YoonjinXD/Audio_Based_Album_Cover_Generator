@@ -210,6 +210,8 @@ class Audio2ImageNet(nn.Module):
                                                         momentum=momentum))
 
     def forward(self, x):
+        x = x.unsqueeze(1)
+        x = x.permute(0, 3, 1, 2)
         for decoder_block in self.decoder_block_list:
             x = decoder_block(x)
         return x
@@ -342,24 +344,4 @@ def init_bn(bn: nn.Module):
     bn.weight.data.fill_(1.0)
     bn.running_mean.data.fill_(0.0)
     bn.running_var.data.fill_(1.0)
-
-####################################
-# Model 이름 ?
-####################################
-class AudioEncoder(nn.Module):
-    def __init__(self):
-        super(AudioEncoder, self).__init__()
-        # TODO: config 처리
-        self.audio2image_net = Audio2ImageNet()
-
-        pretrained_weights = torch.load("./pretrained/best_model.pth")
-        self.audio_feature_extractor = ShortChunkCNN_Res()
-        self.audio_feature_extractor.load_state_dict(pretrained_weights, strict=False)
-
-    def forward(self, audio):
-        emb = self.audio_feature_extractor(audio)
-        emb = emb.unsqueeze(1).unsqueeze(1)
-        emb = emb.permute(0, 3, 1, 2)
-        out = self.audio2image_net(emb.detach())
-        return out
 
